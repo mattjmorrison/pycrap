@@ -1,0 +1,16 @@
+
+# ignore jython class files
+*.class
+
+# ignore compiled python files
+*.pyc
+*.pyo
+
+# ignore egg info
+*.egg-info/*
+
+# ignore pycharm project files
+.idea/*
+
+# ignore coverage data file
+.coverage
