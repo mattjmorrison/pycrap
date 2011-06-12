@@ -1,8 +1,5 @@
-
-# ignore jython class files
-*.class
-
 # ignore compiled python files
+*.class
 *.pyc
 *.pyo
 
