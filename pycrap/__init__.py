@@ -14,4 +14,4 @@ parser = parser_class(usage=USAGE)
 
 def run():
     parser.parse_args()
-    print "Running"
+    print("Running")
