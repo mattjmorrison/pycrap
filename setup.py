@@ -29,10 +29,11 @@ CLASSIFIERS = (
     "Intended Audience :: Developers",
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
+#    "Programming Language :: Python :: 2.5", #TODO ?
     "Programming Language :: Python :: 2.6",
     "Programming Language :: Python :: 2.7",
-#    "Programming Language :: Python :: 3.1 # Depends on cc.py
-#    "Programming Language :: Python :: 3.2 # Depends on cc.py
+#    "Programming Language :: Python :: 3.1 #TODO Depends on cc.py
+#    "Programming Language :: Python :: 3.2 #TODO Depends on cc.py
     "Topic :: Software Development",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
