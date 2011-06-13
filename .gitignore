@@ -6,6 +6,7 @@ __pycache__
 
 # ignore egg info
 *.egg-info/*
+*.egg
 
 # ignore pycharm project files
 .idea/*
