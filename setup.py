@@ -16,7 +16,10 @@ LONG_DESCRIPTION = open(readme).read()
 
 MODULES = ('pycrap',)
 REQUIREMENTS = ('coverage', 'import_file', ) #'pygenie'
-ENTRY_POINTS = {'console_scripts': ['pycrap = crap:run']}
+ENTRY_POINTS = {'console_scripts': [
+    'pycrap = crap:run',
+    'pygenie = pygenie:main'
+]}
 CLASSIFIERS = (
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
@@ -24,7 +27,7 @@ CLASSIFIERS = (
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 2",
-    "Programming Language :: Python :: 3",
+#    "Programming Language :: Python :: 3", #depends on cc module
     "Topic :: Software Development",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
