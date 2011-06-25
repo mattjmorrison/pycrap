@@ -96,3 +96,12 @@ class Plant(Life):
 
     def is_posinous(self, animal):
         return self.name in animal.poisons
+
+def create_new_plant(name):
+    #comments should be ignored
+    new_plant = Plant(name)
+
+    for _ in range(10):
+        new_plant.photosynthesize()
+
+    return new_plant

@@ -1,8 +1,8 @@
-import unittest
+import unittest2
 
 import life
 
-class AnimalTests(unittest.TestCase):
+class AnimalTests(unittest2.TestCase):
 
     def test_animal_sets_name_in_constructor(self):
         name = 'steve'
