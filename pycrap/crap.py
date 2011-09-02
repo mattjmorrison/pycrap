@@ -28,6 +28,10 @@ class ClassInfo(object):
 
 class PyCrap(object):
 
+    def get_crap(self):
+        #self._describe('filename')
+        pass
+
     def _get_coverage_data(self):
         coverage_data = data.CoverageData()
         coverage_data.read()

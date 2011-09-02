@@ -23,6 +23,17 @@ class PycrapTests(unittest.TestCase):
         coverage_data.read.assert_called_once_with()
         self.assertEqual(coverage_data.line_data.return_value, data)
 
+# import imp
+# foo = imp.load_source('module.name', '/path/to/file.py')
+#TODO strip out 'file' to use as the name... this should work.
+
+#    @mock.patch('pycrap.crap.PyCrap._get_coverage_data')
+#    def test_describes_files_in_coverage_data(self, _get_coverage_data):
+#        pycrap_instance = mock.Mock(spec_set=crap.PyCrap)
+#        _get_coverage_data.return_value.items.return_value = {'filename': mock.Mock()}
+#        crap.PyCrap.get_crap(pycrap_instance)
+#        pycrap_instance._describe.assert_called_once_with('filename')
+
     def test_gets_line_number_range_for_given_function(self):
         pycrap = crap.PyCrap()
         result = pycrap._get_line_number_range(life.create_new_plant)
@@ -56,29 +67,28 @@ class PycrapTests(unittest.TestCase):
         result = crap.PyCrap._describe(instance, life)
         list(result.classes)
         self.assertEqual([
-            ((life.Animal,), {}),
-            ((life.ComputerProgrammer,), {}),
-            ((life.Dog,), {}),
-            ((life.Fish,), {}),
-            ((life.HouseCat,), {}),
-            ((life.Life,), {}),
-            ((life.Person,), {}),
-            ((life.Plant,), {}),
+            mock.call(life.Animal),
+            mock.call(life.ComputerProgrammer),
+            mock.call(life.Dog),
+            mock.call(life.Fish),
+            mock.call(life.HouseCat),
+            mock.call(life.Life),
+            mock.call(life.Person),
+            mock.call(life.Plant),
         ], instance._describe_class.call_args_list)
 
     def test_calls_describe_method_for_methods_in_describe(self):
         instance = mock.Mock(spec=crap.PyCrap())
         crap.PyCrap._describe_class(instance, life.Life)
         self.assertEqual([
-            ((life.Life, life.Life.__init__,), {}),
-            ((life.Life, life.Life.can_drink,), {}),
-            ((life.Life, life.Life.can_eat,), {}),
+            mock.call(life.Life, life.Life.__init__),
+            mock.call(life.Life, life.Life.can_drink),
+            mock.call(life.Life, life.Life.can_eat),
         ], instance._describe_method.call_args_list)
 
     def test_describe_returns_module_info(self):
         instance = mock.Mock(spec=crap.PyCrap())
         module_info = crap.PyCrap._describe(instance, life)
-        print(module_info.classes)
         self.assertEqual(8, len(list(module_info.classes)))
         self.assertEqual(1, len(list(module_info.functions)))
 
