@@ -24,6 +24,12 @@ class FunctionInfoTests(unittest.TestCase):
     def test_coverage_percent(self):
         self.assertEqual(75, self.info.coverage)
 
+    def test_covered_lines(self):
+        self.assertEqual(
+            [(1, 'a'), (2, 'b'), (4, 'd')],
+            self.info.covered
+        )
+
 class MethodInfoTests(FunctionInfoTests):
 
     def setUp(self):
@@ -31,13 +37,75 @@ class MethodInfoTests(FunctionInfoTests):
             'name',
             [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')], (1, 2, 4))
 
+class ClassInfoTests(unittest.TestCase):
+
+    def setUp(self):
+        self.methods = [
+            crap.MethodInfo(
+                mock.Mock(),
+                'name',
+                [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')],
+                (1, 2, 4)),
+            crap.MethodInfo(
+                mock.Mock(),
+                'name',
+                [(5, 'a'), (6, 'b'), (7, 'c'), (8, 'd')],
+                (1, 2, 4)),
+        ]
+        self.info = crap.ClassInfo('sample', self.methods, (1, 2, 4))
+
+    def test_coverage_percent(self):
+        self.assertEqual(75, self.info.coverage)
+
+    def test_lines_aggregates_functions_methods(self):
+        self.assertEqual([
+            (1, 'a'), (2, 'b'), (3, 'c'), (4, 'd'),
+            (5, 'a'), (6, 'b'), (7, 'c'), (8, 'd'),
+        ], self.info.lines)
+
+class ModuleInfoTests(unittest.TestCase):
+
+    def setUp(self):
+        coverage_info = (1, 2, 4, 5, 6, 8)
+
+        self.functions = [
+            crap.FunctionInfo(
+                'name',
+                [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')],
+                coverage_info),
+        ]
+
+        self.methods = [
+            crap.MethodInfo(
+                mock.Mock(),
+                'name',
+                [(5, 'a'), (6, 'b'), (7, 'c'), (8, 'd')],
+                coverage_info),
+        ]
+
+        self.classes = [
+            crap.ClassInfo(
+                'name',
+                self.methods,
+                coverage_info
+            )
+        ]
+
+        self.info = crap.ModuleInfo(self.classes, self.functions, coverage_info)
+
+    def _test_coverage_percent(self):
+        self.assertEqual(75, self.info.coverage)
+
+    def test_lines_aggregates_classes_and_functions(self):
+        self.assertEqual([
+            (1, 'a'), (2, 'b'), (3, 'c'), (4, 'd'),
+            (5, 'a'), (6, 'b'), (7, 'c'), (8, 'd'),
+        ], self.info.lines)
 
 class PycrapTests(unittest.TestCase):
 
     def get_file_path_for_module(self, module):
         file_path = os.path.abspath(module.__file__)
-#        if file_path.endswith('.pyc'): #python 3
-#            file_path = file_path[:-1]
         if file_path.endswith('$py.class'): #jython
             file_path = file_path[:-9] + ".py"
         return file_path

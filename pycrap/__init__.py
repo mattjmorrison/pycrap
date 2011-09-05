@@ -12,8 +12,8 @@ then run "pycrap"
 
 parser = parser_class(usage=USAGE)
 
-#from pycrap import crap
+from pycrap import crap
 
 def run():
     parser.parse_args()
-#    print crap.PyCrap().get_crap()
+    print(crap.PyCrap().get_crap())
