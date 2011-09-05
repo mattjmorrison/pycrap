@@ -21,7 +21,7 @@ class CoverageInfo(object):
         covered_lines = filter(lambda line: line[0] in self.covered_lines, self.lines)
         return (float(len(list(covered_lines))) / float(len(self.lines))) * 100
 
-class ModuleInfo(object):
+class ModuleInfo(CoverageInfo):
 
     def __init__(self, classes, functions, covered_lines):
         self.classes = classes
@@ -38,12 +38,6 @@ class ModuleInfo(object):
 
         return list(sorted(results))
 
-    @property
-    def coverage(self):
-        class_coverage = sum(klass.coverage for klass in self.classes)
-        func_coverage = sum(func.coverage for func in self.functions)
-        return class_coverage + func_coverage
-
 class FunctionInfo(CoverageInfo):
 
     def __init__(self, name, lines, covered_lines):
@@ -59,7 +53,7 @@ class MethodInfo(FunctionInfo):
         self.lines = lines
         self.covered_lines = covered_lines
 
-class ClassInfo(object):
+class ClassInfo(CoverageInfo):
 
     def __init__(self, name, methods, covered_lines):
         self.name = name
@@ -72,10 +66,6 @@ class ClassInfo(object):
         #python 3 is lazy
         list(map(lambda method: results.extend(method.lines), self.methods))
         return list(results)
-
-    @property
-    def coverage(self):
-        return sum(method.coverage for method in self.methods)
 
 class PyCrap(object):
 

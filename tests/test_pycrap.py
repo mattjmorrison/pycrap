@@ -55,7 +55,7 @@ class ClassInfoTests(unittest.TestCase):
         self.info = crap.ClassInfo('sample', self.methods, (1, 2, 4))
 
     def test_coverage_percent(self):
-        self.assertEqual(75, self.info.coverage)
+        self.assertEqual(37.5, self.info.coverage)
 
     def test_lines_aggregates_functions_methods(self):
         self.assertEqual([
@@ -93,7 +93,7 @@ class ModuleInfoTests(unittest.TestCase):
 
         self.info = crap.ModuleInfo(self.classes, self.functions, coverage_info)
 
-    def _test_coverage_percent(self):
+    def test_coverage_percent(self):
         self.assertEqual(75, self.info.coverage)
 
     def test_lines_aggregates_classes_and_functions(self):
