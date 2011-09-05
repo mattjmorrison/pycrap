@@ -4,7 +4,7 @@ import mock
 import os
 import inspect
 
-from pycrap import crap
+from pycrap import crap, info
 
 from tests.sample_app import life
 
@@ -18,7 +18,7 @@ FUNCTION_DEF = [
 
 class FunctionInfoTests(unittest.TestCase):
     def setUp(self):
-        self.info = crap.FunctionInfo('name',
+        self.info = info.FunctionInfo('name',
             [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')], (1, 2, 4))
 
     def test_coverage_percent(self):
@@ -33,7 +33,7 @@ class FunctionInfoTests(unittest.TestCase):
 class MethodInfoTests(FunctionInfoTests):
 
     def setUp(self):
-        self.info = crap.MethodInfo(mock.Mock(),
+        self.info = info.MethodInfo(mock.Mock(),
             'name',
             [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')], (1, 2, 4))
 
@@ -41,18 +41,18 @@ class ClassInfoTests(unittest.TestCase):
 
     def setUp(self):
         self.methods = [
-            crap.MethodInfo(
+            info.MethodInfo(
                 mock.Mock(),
                 'name',
                 [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')],
                 (1, 2, 4)),
-            crap.MethodInfo(
+            info.MethodInfo(
                 mock.Mock(),
                 'name',
                 [(5, 'a'), (6, 'b'), (7, 'c'), (8, 'd')],
                 (1, 2, 4)),
         ]
-        self.info = crap.ClassInfo('sample', self.methods, (1, 2, 4))
+        self.info = info.ClassInfo('sample', self.methods, (1, 2, 4))
 
     def test_coverage_percent(self):
         self.assertEqual(37.5, self.info.coverage)
@@ -69,14 +69,14 @@ class ModuleInfoTests(unittest.TestCase):
         coverage_info = (1, 2, 4, 5, 6, 8)
 
         self.functions = [
-            crap.FunctionInfo(
+            info.FunctionInfo(
                 'name',
                 [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')],
                 coverage_info),
         ]
 
         self.methods = [
-            crap.MethodInfo(
+            info.MethodInfo(
                 mock.Mock(),
                 'name',
                 [(5, 'a'), (6, 'b'), (7, 'c'), (8, 'd')],
@@ -84,14 +84,14 @@ class ModuleInfoTests(unittest.TestCase):
         ]
 
         self.classes = [
-            crap.ClassInfo(
+            info.ClassInfo(
                 'name',
                 self.methods,
                 coverage_info
             )
         ]
 
-        self.info = crap.ModuleInfo(self.classes, self.functions, coverage_info)
+        self.info = info.ModuleInfo(self.classes, self.functions, coverage_info)
 
     def test_coverage_percent(self):
         self.assertEqual(75, self.info.coverage)

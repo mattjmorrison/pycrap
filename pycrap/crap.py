@@ -3,69 +3,9 @@ import re
 from import_file import import_file
 from coverage import data
 from pycrap.support import partial
+from pycrap import info
 
 BLANK_REGEX = re.compile(r"\s*(#|$)").match
-
-class CoverageInfo(object):
-
-    def __init__(self):
-        self.lines = []
-        self.covered_lines = []
-
-    @property
-    def covered(self):
-        return [line for line in self.lines if line[0] in self.covered_lines]
-
-    @property
-    def coverage(self):
-        covered_lines = filter(lambda line: line[0] in self.covered_lines, self.lines)
-        return (float(len(list(covered_lines))) / float(len(self.lines))) * 100
-
-class ModuleInfo(CoverageInfo):
-
-    def __init__(self, classes, functions, covered_lines):
-        self.classes = classes
-        self.functions = functions
-        self.covered_lines = covered_lines
-
-    @property
-    def lines(self):
-        results = []
-        append_lines = lambda info: results.extend(info.lines)
-        # python 3 is lazy
-        list(map(append_lines, self.classes))
-        list(map(append_lines, self.functions))
-
-        return list(sorted(results))
-
-class FunctionInfo(CoverageInfo):
-
-    def __init__(self, name, lines, covered_lines):
-        self.name = name
-        self.lines = lines
-        self.covered_lines = covered_lines
-
-class MethodInfo(FunctionInfo):
-
-    def __init__(self, klass, name, lines, covered_lines):
-        self.klass = klass
-        self.name = name
-        self.lines = lines
-        self.covered_lines = covered_lines
-
-class ClassInfo(CoverageInfo):
-
-    def __init__(self, name, methods, covered_lines):
-        self.name = name
-        self.methods = methods
-        self.covered_lines = covered_lines
-
-    @property
-    def lines(self):
-        results = []
-        #python 3 is lazy
-        list(map(lambda method: results.extend(method.lines), self.methods))
-        return list(results)
 
 class PyCrap(object):
 
@@ -96,20 +36,20 @@ class PyCrap(object):
         classes = map(_desc_class, filter(_isclass, mod_attr_names))
         functions = map(_desc_function, filter(_isfunction, mod_attr_names))
 
-        return ModuleInfo(classes, functions, coverage_data)
+        return info.ModuleInfo(classes, functions, coverage_data)
 
     def _describe_class(self, klass, covered_lines):
         class_attr = partial(getattr, klass)
         is_method = lambda name: inspect.ismethod(class_attr(name)) or inspect.isfunction(class_attr(name))
         desc_method = partial(self._describe_method, klass, covered_lines)
         methods = map(desc_method, map(class_attr, filter(is_method, dir(klass))))
-        return ClassInfo(klass.__name__, list(methods), covered_lines)
+        return info.ClassInfo(klass.__name__, list(methods), covered_lines)
 
     def _describe_method(self, klass, covered_lines, method):
-        return MethodInfo(klass, method.__name__, self._get_line_number_range(method), covered_lines)
+        return info.MethodInfo(klass, method.__name__, self._get_line_number_range(method), covered_lines)
 
     def _describe_function(self, function, covered_lines):
-        return FunctionInfo(function.__name__, self._get_line_number_range(function), covered_lines)
+        return info.FunctionInfo(function.__name__, self._get_line_number_range(function), covered_lines)
 
     def _get_line_number_range(self, obj):
         lines, starting_line = inspect.getsourcelines(obj)
