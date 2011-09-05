@@ -1,0 +1,17 @@
+# ignore tox virtualenvs
+.tox/*
+# ignore compiled python files
+__pycache__
+*.class
+*.pyc
+*.pyo
+
+# ignore egg info
+*.egg-info/*
+*.egg
+
+# ignore pycharm project files
+.idea/*
+
+# ignore coverage data file
+.coverage
