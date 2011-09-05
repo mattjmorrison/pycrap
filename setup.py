@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright (C) 2011 Matthew J. Morrison
 # E-mail: mattjmorrison AT mattjmorrison DOT com
 import os

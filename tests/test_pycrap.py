@@ -1,6 +1,9 @@
 import unittest
 import mock
 
+import os
+import inspect
+
 from pycrap import crap
 
 from tests.sample_app import life
@@ -13,7 +16,31 @@ FUNCTION_DEF = [
     (107, '    return new_plant\n'),
 ]
 
+class FunctionInfoTests(unittest.TestCase):
+    def setUp(self):
+        self.info = crap.FunctionInfo('name',
+            [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')], (1, 2, 4))
+
+    def test_coverage_percent(self):
+        self.assertEqual(75, self.info.coverage)
+
+class MethodInfoTests(FunctionInfoTests):
+
+    def setUp(self):
+        self.info = crap.MethodInfo(mock.Mock(),
+            'name',
+            [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')], (1, 2, 4))
+
+
 class PycrapTests(unittest.TestCase):
+
+    def get_file_path_for_module(self, module):
+        file_path = os.path.abspath(module.__file__)
+#        if file_path.endswith('.pyc'): #python 3
+#            file_path = file_path[:-1]
+        if file_path.endswith('$py.class'): #jython
+            file_path = file_path[:-9] + ".py"
+        return file_path
 
     @mock.patch('coverage.data.CoverageData')
     def test_reads_coverage_data_in_get_coverage_data(self, coverage_data_class):
@@ -23,16 +50,21 @@ class PycrapTests(unittest.TestCase):
         coverage_data.read.assert_called_once_with()
         self.assertEqual(coverage_data.line_data.return_value, data)
 
-# import imp
-# foo = imp.load_source('module.name', '/path/to/file.py')
-#TODO strip out 'file' to use as the name... this should work.
+    def test_describes_files_in_coverage_data(self):
+        pycrap_instance = mock.Mock(spec_set=crap.PyCrap)
+        somefile_data = mock.Mock()
+        another_file_data = mock.Mock()
+        coverage_data = {'somefile.py': somefile_data,
+                         'another_file.py': another_file_data}
+        pycrap_instance._get_coverage_data.return_value = coverage_data
+        crap.PyCrap.get_crap(pycrap_instance)
 
-#    @mock.patch('pycrap.crap.PyCrap._get_coverage_data')
-#    def test_describes_files_in_coverage_data(self, _get_coverage_data):
-#        pycrap_instance = mock.Mock(spec_set=crap.PyCrap)
-#        _get_coverage_data.return_value.items.return_value = {'filename': mock.Mock()}
-#        crap.PyCrap.get_crap(pycrap_instance)
-#        pycrap_instance._describe.assert_called_once_with('filename')
+        # sort these because calls are made in order of dict keys
+        self.assertEqual(
+            sorted([
+                ((('somefile.py', somefile_data),), {}),
+                ((('another_file.py', another_file_data),), {})
+            ]), sorted(pycrap_instance._describe.call_args_list))
 
     def test_gets_line_number_range_for_given_function(self):
         pycrap = crap.PyCrap()
@@ -41,13 +73,14 @@ class PycrapTests(unittest.TestCase):
 
     def test_gets_data_for_function_in_describe_function(self):
         pycrap = crap.PyCrap()
-        function_data = pycrap._describe_function(life.create_new_plant)
+        function_data = pycrap._describe_function(life.create_new_plant, [])
         self.assertEqual('create_new_plant', function_data.name)
         self.assertEqual(FUNCTION_DEF, list(function_data.lines))
 
     def test_gets_data_for_method_in_describe_method(self):
         pycrap = crap.PyCrap()
-        method_data = pycrap._describe_method(life.Person, life.Person.can_drink)
+        method_data = pycrap._describe_method(
+            life.Person, [], life.Person.can_drink)
         self.assertEqual(life.Person, method_data.klass)
         self.assertEqual('can_drink', method_data.name)
         self.assertEqual([
@@ -89,12 +122,50 @@ class PycrapTests(unittest.TestCase):
     def test_describe_returns_module_info(self):
         instance = mock.Mock(spec=crap.PyCrap())
         module_info = crap.PyCrap._describe(instance, life)
+
+    def test_calls_describe_function_for_functions_in_describe(self):
+        file_path = self.get_file_path_for_module(life)
+        instance = mock.Mock(spec=crap.PyCrap())
+        coverage_data = mock.Mock()
+        result = crap.PyCrap._describe(instance, (file_path, coverage_data))
+        list(result.functions)
+        self.assertEqual(1, instance._describe_function.call_count)
+        call_args = instance._describe_function.call_args
+        self.assertTrue(inspect.isfunction(call_args[0][0]))
+        self.assertEqual(coverage_data, call_args[0][1])
+
+    def test_calls_describe_class_for_classes_in_describe(self):
+        file_path = self.get_file_path_for_module(life)
+        coverage_data = mock.Mock()
+        instance = mock.Mock(spec=crap.PyCrap())
+        result = crap.PyCrap._describe(instance, (file_path, coverage_data))
+        list(result.classes)
+
+        for call_arg in instance._describe_class.call_args_list:
+            self.assertTrue(inspect.isclass(call_arg[0][0]))
+            self.assertEqual(coverage_data, call_arg[0][1])
+            self.assertEqual(2, len(call_arg[0]))
+
+    def test_calls_describe_method_for_methods_in_describe(self):
+        instance = mock.Mock(spec=crap.PyCrap())
+        crap.PyCrap._describe_class(instance, life.Life, [])
+        self.assertEqual([
+            ((life.Life, [], life.Life.__init__), {}),
+            ((life.Life, [], life.Life.can_drink), {}),
+            ((life.Life, [], life.Life.can_eat), {}),
+        ], instance._describe_method.call_args_list)
+
+    def test_describe_returns_module_info(self):
+        file_path = self.get_file_path_for_module(life)
+        instance = mock.Mock(spec=crap.PyCrap())
+        module_info = crap.PyCrap._describe(instance, (file_path, mock.Mock()))
+
         self.assertEqual(8, len(list(module_info.classes)))
         self.assertEqual(1, len(list(module_info.functions)))
 
     def test_describe_class_returns_class_info(self):
         instance = mock.Mock(spec=crap.PyCrap())
-        class_info = crap.PyCrap._describe_class(instance, life.Life)
+        class_info = crap.PyCrap._describe_class(instance, life.Life, [])
         self.assertEqual('Life', class_info.name)
         self.assertEqual(3, len(class_info.methods))
         self.assertEqual([instance._describe_method()] * 3, class_info.methods)
