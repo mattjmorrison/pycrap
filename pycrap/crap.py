@@ -10,9 +10,10 @@ BLANK_REGEX = re.compile(r"\s*(#|$)").match
 class PyCrap(object):
 
     def get_crap(self):
-        results = self._get_coverage_data()
+        covered_lines = self._get_coverage_data()
+        #TODO get cc here and pass it in to _describe
         # python 3 is lazy
-        return list(map(self._describe, results.items()))
+        return list(map(self._describe, covered_lines.items()))
 
     def _get_coverage_data(self):
         coverage_data = data.CoverageData()

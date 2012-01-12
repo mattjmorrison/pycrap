@@ -1,5 +1,13 @@
+import cc
 
 class CoverageInfo(object):
+
+#
+#       code = ''.join(self.lines)
+#       measure = cc.measure_complexity(code)
+#       complexity = measure.functions[0].complexity
+#       complexity = measure.classes[0].complexity
+#
 
     def __init__(self):
         self.lines = []
@@ -44,12 +52,23 @@ class ClassInfo(CoverageInfo):
         list(map(lambda method: results.extend(method.lines), self.methods))
         return list(results)
 
+    @property
+    def complexity(self):
+        measure = cc.measure_complexity(''.join([line[1] for line in self.lines]))
+        return measure.classes[0].complexity
+
 class FunctionInfo(CoverageInfo):
 
     def __init__(self, name, lines, covered_lines):
         self.name = name
         self.lines = lines
         self.covered_lines = covered_lines
+
+
+    @property
+    def complexity(self):
+        measure = cc.measure_complexity(''.join([line[1] for line in self.lines]))
+        return measure.functions[0].complexity
 
 class MethodInfo(FunctionInfo):
 
