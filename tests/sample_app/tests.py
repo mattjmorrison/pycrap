@@ -13,7 +13,7 @@ class AnimalTests(unittest2.TestCase):
         sample = life.Animal('carl')
         self.assertTrue(sample.can_drink('milk'))
 
-class PlantTests(unittest.TestCase):
+class PlantTests(unittest2.TestCase):
 
     def test_plant_can_drink_water(self):
         plant = life.Plant("tree")
@@ -24,4 +24,4 @@ class PlantTests(unittest.TestCase):
         self.assertFalse(plant.can_drink('milk'))
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest2.main()

@@ -16,29 +16,69 @@ FUNCTION_DEF = [
     (107, '    return new_plant\n'),
 ]
 
-class FunctionInfoTests(unittest.TestCase):
-    def setUp(self):
-        self.info = crap.FunctionInfo('name',
-            [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')], (1, 2, 4))
+METHOD_DEFS = [
+    crap.MethodInfo(mock.Mock(), 'first', FUNCTION_DEF, (100, 102, 104)),
+    crap.MethodInfo(mock.Mock(), 'second', FUNCTION_DEF, (100, 102, 104)),
+]
+
+FUNC_DEFS = [
+    crap.FunctionInfo('name', FUNCTION_DEF, (100, 102, 104)),
+    crap.FunctionInfo('name', FUNCTION_DEF, (100, 102, 104)),
+]
+
+CLASS_DEFS = [
+    crap.ClassInfo('name', METHOD_DEFS, (1, 2, 3)),
+    crap.ClassInfo('name', METHOD_DEFS, (1, 2, 3)),
+]
+
+class InfoTests(object):
 
     def test_coverage_percent(self):
-        self.assertEqual(75, self.info.coverage)
+        self.assertEqual(60, self.info.coverage)    
+
+class FunctionInfoTests(InfoTests, unittest.TestCase):
+
+    def setUp(self):
+        self.info = crap.FunctionInfo('name', FUNCTION_DEF, (100, 102, 104))
+        
+    def test_complexity_number(self):
+        self.assertEqual(2, self.info.complexity)
+        
+    def test_crap_number(self):
+        self.assertAlmostEqual(2.26, self.info.crap, 2)
 
 class MethodInfoTests(FunctionInfoTests):
 
     def setUp(self):
-        self.info = crap.MethodInfo(mock.Mock(),
-            'name',
-            [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd')], (1, 2, 4))
+        self.info = crap.MethodInfo(mock.Mock(), 'name', FUNCTION_DEF, (100, 102, 104))
 
+class ClassInfoTests(InfoTests, unittest.TestCase):
+
+    def setUp(self):
+        self.info = crap.ClassInfo('name', METHOD_DEFS, (200, 201, 204))
+
+    def test_complexity_number(self):
+        self.assertEqual(4, self.info.complexity)
+        
+    def test_crap_number(self):
+        self.assertAlmostEqual(5.02, self.info.crap, 2)
+
+class ModuleInfoTests(InfoTests, unittest.TestCase):
+
+    def setUp(self):
+        self.info = crap.ModuleInfo(CLASS_DEFS, FUNC_DEFS)
+
+    def test_complexity_number(self):
+        self.assertEqual(12, self.info.complexity)
+        
+    def test_crap_number(self):
+        self.assertAlmostEqual(21.22, self.info.crap, 2)
 
 class PycrapTests(unittest.TestCase):
 
     def get_file_path_for_module(self, module):
         file_path = os.path.abspath(module.__file__)
-#        if file_path.endswith('.pyc'): #python 3
-#            file_path = file_path[:-1]
-        if file_path.endswith('$py.class'): #jython
+        if file_path.endswith('$py.class'):
             file_path = file_path[:-9] + ".py"
         return file_path
 
@@ -169,3 +209,29 @@ class PycrapTests(unittest.TestCase):
         self.assertEqual('Life', class_info.name)
         self.assertEqual(3, len(class_info.methods))
         self.assertEqual([instance._describe_method()] * 3, class_info.methods)
+        
+class CrapTests(unittest.TestCase):
+
+    def setUp(self):
+        self.complexity = [1, 4, 5, 8, 9, 16, 17]
+        self.coverage = [0.0, 1.0, 20.0, 21.0, 40.0, 41.0, 60.0, 61.0, 80.0, 81.0, 99.0, 100.0]
+        self.crap_results = [
+            [2.0, 20.0, 30.0, 72.0, 90.0, 272.0, 306.0],
+            [1.970299, 19.524784, 29.257475, 70.099136, 87.594219, 264.396544, 297.416411],
+            [1.512, 12.192, 17.8, 40.768, 50.472, 147.072, 164.968],
+            [1.493039, 11.888624, 17.325975, 39.554496, 48.936159, 142.217984, 159.488271],
+            [1.216, 7.456, 10.4, 21.824, 26.496, 71.296, 79.424],
+            [1.205379, 7.286064, 10.134475, 21.144256, 25.635699, 68.577024, 76.354531],
+            [1.064, 5.024, 6.6, 12.096, 14.184, 32.384, 35.496],
+            [1.059319, 4.949104, 6.482975, 11.796416, 13.804839, 31.185664, 34.143191],
+            [1.008, 4.128, 5.2, 8.512, 9.648, 18.048, 19.312],
+            [1.006859, 4.109744, 5.171475, 8.438976, 9.555579, 17.755904, 18.982251],
+            [1.000001, 4.000016, 5.000025, 8.000064, 9.000081, 16.000256, 17.000289],
+            [1.0, 4.0, 5.0, 8.0, 9.0, 16.0, 17.0]
+        ]
+
+    def test_crap_results(self):
+        for coverage_index, coverage in enumerate(self.coverage):
+            for complexity_index, complexity in enumerate(self.complexity):
+                result = crap.crap(coverage, complexity)
+                self.assertAlmostEqual(self.crap_results[coverage_index][complexity_index], result, 7)  

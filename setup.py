@@ -34,12 +34,9 @@ CLASSIFIERS = (
     "Intended Audience :: Developers",
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 2.4", #TODO - functools
     "Programming Language :: Python :: 2.5",
     "Programming Language :: Python :: 2.6",
     "Programming Language :: Python :: 2.7",
-    "Programming Language :: Python :: 3.0", #TODO Check with @dstanek about cc.py
-    "Programming Language :: Python :: 3.1", #TODO          ||
     "Programming Language :: Python :: 3.2", #TODO          ||
     #Jython classifier?
     #pypy ??? WTF? Why Can't I get this mofo running?
